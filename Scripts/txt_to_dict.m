@@ -1,9 +1,7 @@
 %some function that read txt file, take each line splits at ":", everything
 %before : is the name and after is the value, build a dictionary
 
-x=3
-
-function constant = txt_to_dict(path):
+function constant = txt_to_dict(path)
     
     %{
         function reads txt file, takes each line splits in at ":", everything
@@ -16,13 +14,21 @@ function constant = txt_to_dict(path):
         constant (dict) -> the dictionary with the values
     %}
 
-    %reading data
     fileID = fopen(path, 'r');
-    data = fscanf(fileID, '%s');
-    fclose(fileID);
+    constant = containers.Map;
 
-    data = split(data, ":");
+    % Read lines until the end of the file
+    while ~feof(fileID)
+        currentLine = fgetl(fileID); % Read the current line
 
-
-
+        % Check if the line is not empty
+        if ischar(currentLine)
+            parts = strsplit(currentLine, ':');
+            
+            % Extract key and value
+            key = strtrim(parts{1}); % Remove leading/trailing spaces
+            value = str2double(strtrim(parts{2})); % Convert value to double
+            constant(key) = value; % Add the key-value pair to the dict
+        end
+    end
 end
