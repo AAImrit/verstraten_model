@@ -1,3 +1,5 @@
-current_path = which(mfilename);
-[path, ~, ~] = fileparts(current_path);
-constant_path = path + "\constant.txt"
+%obtain contant values
+currentPath = which(mfilename);
+constantPath = fileparts(fileparts(currentPath))+ "\constant.txt";
+constant = txt_to_dict(constantPath);
+
