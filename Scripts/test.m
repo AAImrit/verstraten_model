@@ -1,7 +1,7 @@
 %obtain contant values
 currentPath = which(mfilename);
-constantPath = fileparts(fileparts(currentPath))+ "\constant.txt";
-constant = txtToDict(constantPath);
+constPath = fileparts(fileparts(currentPath))+ "\const.txt";
+const = txtToDict(constPath);
 
 
 %simplest implementation we know theta(t), and we let theta(t) = sin(t)
@@ -15,14 +15,14 @@ constant = txtToDict(constantPath);
 %}
 
 %define theta
-syms t
+syms t;
 
 theta = sin(t);
 theta_dot = diff(theta, t);
 theta_double_dot = diff(theta_dot, t);
 
-Tload = constant('gear_inertia')*theta_double_dot + constant('gear_damping')*theta_dot + mglsin(theta);
-Tm = (constant('motor_inertia') + constant('gear_interia'))*constant('gear_ratio')*theta_double_dot + ((1/constant('gear_efficiency'))/constant('gear_ratio'))*Tload;
+Tload = const('gear_inertia')*theta_double_dot + const('gear_damping')*theta_dot + const('mass')*const('gravity')*const('pendulum_length')*sin(theta);
+Tm = (const('motor_inertia') + const('gear_interia'))*const('gear_ratio')*theta_double_dot + ((1/const('gear_efficiency'))/const('gear_ratio'))*Tload;
 
 t_val = linspace(0, 4*pi, 100);
 test_val = subs(Tm, t, t_val)

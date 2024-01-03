@@ -9,3 +9,5 @@ k_t:1
 k_b:1
 motor_resistive_loss:1
 motor_inductance:1
+gravity:9.81
+mass:1
