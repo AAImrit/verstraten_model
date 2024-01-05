@@ -13,9 +13,11 @@
     - let Tload = some function, and solve for theta 
 %}
 
+close all;
+
 %obtain contant values
 currentPath = which(mfilename);
-constPath = fileparts(fileparts(currentPath))+ "\constant.txt";
+constPath = fileparts(fileparts(currentPath))+ "\constant.txt"; %for matlab online, change \constant to /constant
 const = txtToDict(constPath);
 
 %define theta and the equations
@@ -33,16 +35,58 @@ V = const('motor_inductance')*diff(I, t) + const('motor_resistance')*I + const('
 
 %testing get Tm, thetam_dot, efficiency values
 t_val = linspace(0, 4*pi, 100);
+
+%I think these might be giving motor efficiency values
 test_Tm = double(subs(Tm, t, t_val));
 test_thetam_dot = double(subs(thetam_dot, t, t_val));
 test_Pelec = double(subs(I, t, t_val)).*double(subs(V, t, t_val));
-test_efficiency = (test_Tm.*test_thetam_dot)./test_Pelec;
+test_motor_efficiency = (test_Tm.*test_thetam_dot)./test_Pelec;
 
-%simple plot
-figure(1)
-plot (t_val, test_efficiency)
+%I think these give actuator efficiency values
+test_Tload = double(subs(Tload, t, t_val));
+test_theta_dot = double(subs(thetam_dot, t, t_val));
+test_actuator_efficiency = (test_Tload.*test_theta_dot)./test_Pelec;
+
+plotEfficiecny(test_motor_efficiency, t_val, double(subs(theta,t,t_val)), 'motor efficiency')
+plotEfficiecny(test_actuator_efficiency, t_val, double(subs(theta,t,t_val)), 'actuator efficiency')
+
+%Looking at difference between motor efficiency and actuator efficiency
+figure('windowstyle','docked');
+plot (t_val, test_motor_efficiency, 'DisplayName', 'Motor Efficiency', 'color', 'blue', 'LineWidth', 2)
 hold on;
-plot (t_val, sin(t_val))
+plot (t_val, test_actuator_efficiency, 'DisplayName', 'Actuator Efficiency', 'color', 'red', 'LineWidth', 1)
+hold on;
+plot (t_val, abs((test_actuator_efficiency-test_motor_efficiency)./test_motor_efficiency), 'DisplayName', 'Difference', 'color', 'black')
+legend ('show')
+xlabel('Time (s)');
+ylabel ('y');
+legend ('show');
+
+function plotEfficiecny (efficiency, t_val, theta, name)
+    %{
+        This is to make a simple efficiency plot of the efficency and the theta angle
+
+        Args:
+        efficiency (double[]) -> efficiency values
+        t_val (double[]) -> time
+        theta (double[]) -> the original joint position
+        name (string) -> title of the plot
+    %}
+    figure('windowstyle','docked');
+
+    plot (t_val, efficiency, 'DisplayName', 'Efficiency', 'color', 'r', 'LineWidth', 1.5)
+    hold on;
+    plot (t_val, theta, '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
+    hold on;
+    plot (t_val, movmean(efficiency, 7), 'DisplayName', 'moving average', 'color', 'black')
+    
+    title(name);
+    xlabel('Time (s)');
+    ylabel ('y');
+    legend ('show');
+end
+
+
 
 
 
