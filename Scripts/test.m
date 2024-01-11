@@ -14,10 +14,12 @@ syms t;
 %testing get Tm, thetam_dot, efficiency values
 t_val = linspace(0, 4*pi, 100);
 
-[Tm, thetam_dot, I, V] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, true);
-test_motor_efficiency = (Tm.*thetam_dot)./(I.*V);
+[Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, true);
+test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, regen_index);
+%test_motor_efficiency = (Tm.*thetam_dot)./(I.*V);
 
 actuator_val = evaluateSymbolic ({Tload, theta_dot}, t_val);
+%test_actuator_efficiency = getEfficiency(actuator_val(:, 1), actuator_val(:,2), I, V, regen_index);
 test_actuator_efficiency = (actuator_val(:, 1).*actuator_val(:,2))./(I.*V);
 
 %plotting efficiency
@@ -63,7 +65,24 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     legend ('show');
 end
 
+function eff = getEfficiency(torque, velocity, current, voltage, regen_index)
+    %{
+        get efficiency and applies the quadrant logic
 
+        Args:
+        torque (double[]) -> torque values over some rane
+        velocity (double[]) ->velocity values over some rane
+        current (double[]) -> current values over some rane
+        voltage (double[]) -> voltage values over some rane
+        regen_index (int[]) -> indices where regen occurs
+
+        Return:
+        eff (double[]) -> the efficiency over a given range
+    %}
+    eff = zeros(numel(torque), 1);
+    eff = (torque.*velocity)./(current.*voltage);
+    %eff(regen_index) = (current.*voltage)./(torque.*velocity)
+end
 
 
 

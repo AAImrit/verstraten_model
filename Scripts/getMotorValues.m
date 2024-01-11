@@ -1,4 +1,4 @@
-function [Tm, thetam_dot, I, V] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, ignore_motor_inductance)
+function [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, ignore_motor_inductance)
     %{
         get all motor values
 
@@ -18,12 +18,11 @@ function [Tm, thetam_dot, I, V] = getMotorValues (theta, theta_dot, theta_double
         V (double[]) -> morot voltage over t_val
     %}
 
-    %output_shaft_val = evaluateSymbolic ({theta, theta_dot, theta_double_dot, Tload}, t_val)
+    output_shaft_val = evaluateSymbolic ({theta, theta_dot, theta_double_dot, Tload}, t_val);
     
-    %Tm = getTm (Tload, theta_double_dot, const, 1/const('gear_efficiency'))
-    %index_regen = find( (output_shaft_val(:, 2) > 0 && output_shaft_val(:, 4) < 0) || (output_shaft_val(:, 2) < 0 && output_shaft_val(:, 4) > 0)) %get indices when in quadrant 2 or quadrant 4
-    %Tm(index_regen) = getTm (Tlaod(index_regen), theta_double_dot(index_regen), const, const('gear_efficiency'));
-    %Tm
+    Tm = getTm (output_shaft_val(:, 4), output_shaft_val(:,3), const, 1/const('gear_efficiency'));
+    index_regen = find( (output_shaft_val(:, 2) > 0 & output_shaft_val(:, 4) < 0) | (output_shaft_val(:, 2) < 0 & output_shaft_val(:, 4) > 0)); %get indices when in quadrant 2 or quadrant 4
+    Tm(index_regen) = getTm (output_shaft_val(index_regen, 4), output_shaft_val(index_regen, 3), const, const('gear_efficiency')); %overwrting regen_index with new Tm
 
     thetam_dot = const('gear_ratio')*output_shaft_val(:,2);
 
