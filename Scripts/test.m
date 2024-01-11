@@ -14,6 +14,8 @@
 %}
 
 close all;
+clear all;
+clc;
 
 %obtain contant values
 currentPath = which(mfilename);
@@ -24,13 +26,8 @@ const = txtToDict(constPath);
 %To Do: Turn the code below into a function to make it easier to change theta later.
 syms t;
 
-[theta, theta_dot, theta_double_dot] = getTheta (sin(t), 0, 0)
+[theta, theta_dot, theta_double_dot] = getTheta(sin(t), 0, 0);
 
-%{
-theta = sin(t);
-theta_dot = diff(theta, t);
-theta_double_dot = diff(theta_dot, t);
-%}
 
 Tload = const('gear_inertia')*theta_double_dot + const('gear_damping')*theta_dot + const('mass')*const('gravity')*const('pendulum_length')*sin(theta);
 Tm = (const('motor_inertia') + const('gear_inertia'))*const('gear_ratio')*theta_double_dot + ((1/const('gear_efficiency'))/const('gear_ratio'))*Tload;
