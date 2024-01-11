@@ -11,16 +11,14 @@ const = txtToDict(constPath);
 syms t;
 [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (sin(t), 0, 0, const);
 
-%testing get Tm, thetam_dot, efficiency values
+%get Tm, thetam_dot, efficiency values
 t_val = linspace(0, 4*pi, 100);
 
 [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, true);
-test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, regen_index);
-%test_motor_efficiency = (Tm.*thetam_dot)./(I.*V);
+test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen);
 
 actuator_val = evaluateSymbolic ({Tload, theta_dot}, t_val);
-%test_actuator_efficiency = getEfficiency(actuator_val(:, 1), actuator_val(:,2), I, V, regen_index);
-test_actuator_efficiency = (actuator_val(:, 1).*actuator_val(:,2))./(I.*V);
+test_actuator_efficiency = getEfficiency(actuator_val(:, 1), actuator_val(:,2), I, V, index_regen);
 
 %plotting efficiency
 plotEfficiecny(test_motor_efficiency, t_val, double(subs(theta,t,t_val)), 'motor efficiency')
@@ -40,6 +38,7 @@ legend ('show')
 xlabel('Time (s)');
 ylabel ('Efficiency / Efficiency Error');
 legend ('show');
+%ylim([-5, 5]);
 
 function plotEfficiecny (efficiency, t_val, theta, name)
     %{
@@ -63,6 +62,7 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     xlabel('Time (s)');
     ylabel ('Efficiency');
     legend ('show');
+    %ylim ([-5, 5]);
 end
 
 function eff = getEfficiency(torque, velocity, current, voltage, regen_index)
@@ -80,8 +80,8 @@ function eff = getEfficiency(torque, velocity, current, voltage, regen_index)
         eff (double[]) -> the efficiency over a given range
     %}
     eff = zeros(numel(torque), 1);
-    eff = (torque.*velocity)./(current.*voltage);
-    %eff(regen_index) = (current.*voltage)./(torque.*velocity)
+    eff = (torque.*velocity)./(current.*voltage)
+    eff(regen_index) = (current(regen_index).*voltage(regen_index))./(torque(regen_index).*velocity(regen_index));
 end
 
 
