@@ -28,8 +28,8 @@ syms t;
 
 [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (sin(t), 0, 0, const);
 
-
-%Tload = const('gear_inertia')*theta_double_dot + const('gear_damping')*theta_dot + const('mass')*const('gravity')*const('pendulum_length')*sin(theta);
+%**NOTE:these will probably to be calculated not-symbolically to actually
+%accout for motor operation quadrant
 Tm = (const('motor_inertia') + const('gear_inertia'))*const('gear_ratio')*theta_double_dot + ((1/const('gear_efficiency'))/const('gear_ratio'))*Tload;
 thetam_dot = const('gear_ratio')*theta_dot;
 I = (Tm + const('motor_damping')*thetam_dot)/const('k_t');
@@ -40,18 +40,14 @@ V = const('motor_inductance')*diff(I, t) + const('motor_resistance')*I + const('
 t_val = linspace(0, 4*pi, 100);
 
 %I think these might be giving motor efficiency values
-values = evaluateSymbolic(Tm, thetam_dot, I, V)
-
-test_Tm = double(subs(Tm, t, t_val));
-test_thetam_dot = double(subs(thetam_dot, t, t_val));
-test_Pelec = double(subs(I, t, t_val)).*double(subs(V, t, t_val));
-test_motor_efficiency = (test_Tm.*test_thetam_dot)./test_Pelec;
+test_val = evaluateSymbolic({Tm, thetam_dot, I, V}, t_val);
+test_motor_efficiency = (test_val(:, 1).*test_val(:,2))./(test_val(:, 3).*test_val(:,4));
 
 %I think these give actuator efficiency values
-test_Tload = double(subs(Tload, t, t_val));
-test_theta_dot = double(subs(thetam_dot, t, t_val));
-test_actuator_efficiency = (test_Tload.*test_theta_dot)./test_Pelec;
+actuator_val = evaluateSymbolic ({Tload, theta_dot}, t_val);
+test_actuator_efficiency = (actuator_val(:, 1).*actuator_val(:,2))./(test_val(:, 3).*test_val(:,4));
 
+%plotting efficiency
 plotEfficiecny(test_motor_efficiency, t_val, double(subs(theta,t,t_val)), 'motor efficiency')
 plotEfficiecny(test_actuator_efficiency, t_val, double(subs(theta,t,t_val)), 'actuator efficiency')
 
@@ -94,12 +90,13 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     legend ('show');
 end
 
-function result = evaluateSymbolic (euqations, val)
+function result = evaluateSymbolic (equations, val)
+    syms t;
 
-    results = zeroes(numel(val), numel(equations))
+    result = zeros(numel(val), numel(equations));
 
-    for i = 1:nume1(equations)
-        result(:,i) = double(subs(euqations{i}, t, val))
+    for i = 1:numel(equations)
+        result(:,i) = double(subs(equations{i}, t, val));
     end
 end
 
