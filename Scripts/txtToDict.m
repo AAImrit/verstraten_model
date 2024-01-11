@@ -1,5 +1,4 @@
-%some function that read txt file, take each line splits at ":", everything
-%before : is the name and after is the value, build a dictionary
+
 
 function constant = txtToDict(path)
     
