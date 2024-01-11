@@ -52,14 +52,17 @@ plotEfficiecny(test_actuator_efficiency, t_val, double(subs(theta,t,t_val)), 'ac
 
 %Looking at difference between motor efficiency and actuator efficiency
 figure('windowstyle','docked');
-plot (t_val, test_motor_efficiency, 'DisplayName', 'Motor Efficiency', 'color', 'blue', 'LineWidth', 2)
+plot (t_val, test_motor_efficiency, 'DisplayName', 'Motor Efficiency', 'color', [0.2 0.5 0.9 0.4], 'LineWidth', 2)
 hold on;
-plot (t_val, test_actuator_efficiency, 'DisplayName', 'Actuator Efficiency', 'color', 'red', 'LineWidth', 1)
+plot (t_val, test_actuator_efficiency, 'DisplayName', 'Actuator Efficiency', 'color', 'red', 'LineWidth', 0.5)
 hold on;
-plot (t_val, abs((test_actuator_efficiency-test_motor_efficiency)./test_motor_efficiency), 'DisplayName', 'Difference', 'color', 'black')
+plot (t_val, abs((test_actuator_efficiency-test_motor_efficiency)./test_motor_efficiency), 'DisplayName', 'Difference', 'color', 'black', 'LineWidth', 1)
+hold on;
+plot (t_val, double(subs(theta,t,t_val)), '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
+
 legend ('show')
 xlabel('Time (s)');
-ylabel ('y');
+ylabel ('Efficiency / Efficiency Error');
 legend ('show');
 
 function plotEfficiecny (efficiency, t_val, theta, name)
@@ -74,15 +77,15 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     %}
     figure('windowstyle','docked');
 
-    plot (t_val, efficiency, 'DisplayName', 'Efficiency', 'color', 'r', 'LineWidth', 1.5)
+    plot (t_val, efficiency, 'DisplayName', 'Efficiency', 'color', 'black', 'LineWidth', 1)
     hold on;
     plot (t_val, theta, '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
     hold on;
-    plot (t_val, movmean(efficiency, 7), 'DisplayName', 'moving average', 'color', 'black')
+    plot (t_val, movmean(efficiency, 7), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
     
     title(name);
     xlabel('Time (s)');
-    ylabel ('y');
+    ylabel ('Efficiency');
     legend ('show');
 end
 
