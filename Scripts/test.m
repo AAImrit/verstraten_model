@@ -21,6 +21,7 @@ constPath = fileparts(fileparts(currentPath))+ "\constant.txt"; %for matlab onli
 const = txtToDict(constPath);
 
 %define theta and the equations
+%To Do: Turn the code below into a function to make it easier to change theta later.
 syms t;
 
 theta = sin(t);
@@ -34,6 +35,7 @@ I = (Tm + const('motor_damping')*thetam_dot)/const('k_t');
 V = const('motor_inductance')*diff(I, t) + const('motor_resistance')*I + const('k_b')*thetam_dot;
 
 %testing get Tm, thetam_dot, efficiency values
+%To Do: Turn the code below into a function, to make it easier to chage t_val and stuff later
 t_val = linspace(0, 4*pi, 100);
 
 %I think these might be giving motor efficiency values
