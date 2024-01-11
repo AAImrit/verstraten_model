@@ -26,10 +26,10 @@ const = txtToDict(constPath);
 %To Do: Turn the code below into a function to make it easier to change theta later.
 syms t;
 
-[theta, theta_dot, theta_double_dot] = getTheta(sin(t), 0, 0);
+[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (sin(t), 0, 0, const);
 
 
-Tload = const('gear_inertia')*theta_double_dot + const('gear_damping')*theta_dot + const('mass')*const('gravity')*const('pendulum_length')*sin(theta);
+%Tload = const('gear_inertia')*theta_double_dot + const('gear_damping')*theta_dot + const('mass')*const('gravity')*const('pendulum_length')*sin(theta);
 Tm = (const('motor_inertia') + const('gear_inertia'))*const('gear_ratio')*theta_double_dot + ((1/const('gear_efficiency'))/const('gear_ratio'))*Tload;
 thetam_dot = const('gear_ratio')*theta_dot;
 I = (Tm + const('motor_damping')*thetam_dot)/const('k_t');
@@ -40,6 +40,8 @@ V = const('motor_inductance')*diff(I, t) + const('motor_resistance')*I + const('
 t_val = linspace(0, 4*pi, 100);
 
 %I think these might be giving motor efficiency values
+values = evaluateSymbolic(Tm, thetam_dot, I, V)
+
 test_Tm = double(subs(Tm, t, t_val));
 test_thetam_dot = double(subs(thetam_dot, t, t_val));
 test_Pelec = double(subs(I, t, t_val)).*double(subs(V, t, t_val));
@@ -90,6 +92,15 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     xlabel('Time (s)');
     ylabel ('Efficiency');
     legend ('show');
+end
+
+function result = evaluateSymbolic (euqations, val)
+
+    results = zeroes(numel(val), numel(equations))
+
+    for i = 1:nume1(equations)
+        result(:,i) = double(subs(euqations{i}, t, val))
+    end
 end
 
 
