@@ -1,18 +1,3 @@
-
-%simplest implementation we know theta(t), and we let theta(t) = sin(t
-%{
-    issues with simples case:
-    - can't really make a heatmap out of this, will only get specific thetam_dot, Tm values
-    - remeber for heatmap, motor velocity is independent variable, motor torque is non independent
-
-    things to try:
-    - let theta(t) = sin(t)
-    - let thetam_dot = [vector]
-    - let thetamD_dot = ct
-    - let Tm = [vector]
-    - let Tload = some function, and solve for theta 
-%}
-
 close all;
 clear all;
 clc;
@@ -23,29 +8,17 @@ constPath = fileparts(fileparts(currentPath))+ "\constant.txt"; %for matlab onli
 const = txtToDict(constPath);
 
 %define theta and the equations
-%To Do: Turn the code below into a function to make it easier to change theta later.
 syms t;
-
 [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (sin(t), 0, 0, const);
 
-%**NOTE:these will probably to be calculated not-symbolically to actually
-%accout for motor operation quadrant
-Tm = (const('motor_inertia') + const('gear_inertia'))*const('gear_ratio')*theta_double_dot + ((1/const('gear_efficiency'))/const('gear_ratio'))*Tload;
-thetam_dot = const('gear_ratio')*theta_dot;
-I = (Tm + const('motor_damping')*thetam_dot)/const('k_t');
-V = const('motor_inductance')*diff(I, t) + const('motor_resistance')*I + const('k_b')*thetam_dot;
-
 %testing get Tm, thetam_dot, efficiency values
-%To Do: Turn the code below into a function, to make it easier to chage t_val and stuff later
 t_val = linspace(0, 4*pi, 100);
 
-%I think these might be giving motor efficiency values
-test_val = evaluateSymbolic({Tm, thetam_dot, I, V}, t_val);
-test_motor_efficiency = (test_val(:, 1).*test_val(:,2))./(test_val(:, 3).*test_val(:,4));
+[Tm, thetam_dot, I, V] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, true);
+test_motor_efficiency = (Tm.*thetam_dot)./(I.*V);
 
-%I think these give actuator efficiency values
 actuator_val = evaluateSymbolic ({Tload, theta_dot}, t_val);
-test_actuator_efficiency = (actuator_val(:, 1).*actuator_val(:,2))./(test_val(:, 3).*test_val(:,4));
+test_actuator_efficiency = (actuator_val(:, 1).*actuator_val(:,2))./(I.*V);
 
 %plotting efficiency
 plotEfficiecny(test_motor_efficiency, t_val, double(subs(theta,t,t_val)), 'motor efficiency')
@@ -90,25 +63,6 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     legend ('show');
 end
 
-function result = evaluateSymbolic (equations, val)
-    %{
-        take symbolic equationd and turn evalute over a specific range
-
-        Args:
-        equations (list) -> a list containing symbolic equations
-        val (double[]) -> a vector containing values over which we want to evaluate our symbolic function
-
-        Returns:
-        reulst (double[][]) -> 2D array, where each column is 1 euqations values over the range defined in val
-    %}
-    syms t;
-
-    result = zeros(numel(val), numel(equations));
-
-    for i = 1:numel(equations)
-        result(:,i) = double(subs(equations{i}, t, val));
-    end
-end
 
 
 
