@@ -14,7 +14,7 @@ syms t;
 %get Tm, thetam_dot, efficiency values
 t_val = linspace(0, 4*pi, 100);
 
-[Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, true);
+[Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false);
 test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen);
 
 actuator_val = evaluateSymbolic ({Tload, theta_dot}, t_val);
@@ -23,6 +23,23 @@ test_actuator_efficiency = getEfficiency(actuator_val(:, 1), actuator_val(:,2), 
 %plotting efficiency
 plotEfficiecny(test_motor_efficiency, t_val, double(subs(theta,t,t_val)), 'motor efficiency')
 plotEfficiecny(test_actuator_efficiency, t_val, double(subs(theta,t,t_val)), 'actuator efficiency')
+
+figure('windowstyle','docked');
+plot (t_val, I, 'DisplayName', 'Current', 'color', 'r', 'LineWidth', 1)
+hold on;
+plot (t_val, I, 'DisplayName', 'Voltage', 'color', 'b')
+hold on;
+plot (t_val, double(subs(theta,t,t_val)), '--', 'DisplayName', 'joint position', 'color', 'blue')
+hold on;
+plot (t_val, Tm, 'DisplayName', 'Motor Torque', 'color', 'green')
+hold on;
+plot (t_val, actuator_val(:, 1), 'DisplayName', 'Tload', 'color', 'black')
+
+legend ('show')
+xlabel('Time (s)');
+ylabel ('Efficiency / Efficiency Error');
+legend ('show');
+%ylim([-5, 5]);
 
 %Looking at difference between motor efficiency and actuator efficiency
 figure('windowstyle','docked');
@@ -56,7 +73,7 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     hold on;
     plot (t_val, theta, '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
     hold on;
-    plot (t_val, movmean(efficiency, 7), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
+    plot (t_val, movmean(efficiency, 10), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
     
     title(name);
     xlabel('Time (s)');
@@ -80,10 +97,12 @@ function eff = getEfficiency(torque, velocity, current, voltage, regen_index)
         eff (double[]) -> the efficiency over a given range
     %}
     eff = zeros(numel(torque), 1);
-    eff = (torque.*velocity)./(current.*voltage)
-    eff(regen_index) = (current(regen_index).*voltage(regen_index))./(torque(regen_index).*velocity(regen_index));
+    eff = (torque.*velocity)./(current.*voltage);
+    if (size(regen_index) ~= 0)
+        disp("regen accounted for in efficiency calc")
+        eff(regen_index) = (current(regen_index).*voltage(regen_index))./(torque(regen_index).*velocity(regen_index));
+    end
 end
-
 
 
 
