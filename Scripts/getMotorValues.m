@@ -28,11 +28,11 @@ function [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot,
         Tm(index_regen) = getTm (output_shaft_val(index_regen, 4), output_shaft_val(index_regen, 3), const, const('gear_efficiency')); %overwrting regen_index with new Tm
     end
     
-    thetam_dot = const('gear_ratio')*output_shaft_val(:,2);
+    thetam_dot = const('gear_ratio').*output_shaft_val(:,2);
 
-    I = (1/const('k_t')) * (Tm + const('motor_damping')*thetam_dot);
+    I = (1/const('k_t')).*(Tm + const('motor_damping').*thetam_dot);
     
-    V = const('motor_resistance')*I + const('k_b')*thetam_dot;
+    V = const('motor_resistance').*I + const('k_b').*thetam_dot;
 
     if ignore_motor_inductance == false
         %approximating differential of I
@@ -57,5 +57,5 @@ function Tm = getTm (Tload, theta_double_dot, const, c)
         Tm (double[]) -> Tm values in a 1D array
     %}
 
-    Tm = (const('motor_inertia') + const('gear_inertia'))*const('gear_ratio').*theta_double_dot + (c/const('gear_ratio')).*Tload;
+    Tm = (const('motor_inertia') + const('gear_inertia')).*const('gear_ratio').*theta_double_dot + (c/const('gear_ratio')).*Tload;
 end 

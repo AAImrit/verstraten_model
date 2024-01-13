@@ -20,14 +20,15 @@ test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen);
 actuator_val = evaluateSymbolic ({Tload, theta_dot}, t_val);
 test_actuator_efficiency = getEfficiency(actuator_val(:, 1), actuator_val(:,2), I, V, index_regen);
 
-%plotting efficiency
+% plotting efficiency vs time
 plotEfficiecny(test_motor_efficiency, t_val, double(subs(theta,t,t_val)), 'motor efficiency')
 plotEfficiecny(test_actuator_efficiency, t_val, double(subs(theta,t,t_val)), 'actuator efficiency')
 
+%plotting I, V, theta, Tload, Tm to compare and see if something looks off
 figure('windowstyle','docked');
 plot (t_val, I, 'DisplayName', 'Current', 'color', 'r', 'LineWidth', 1)
 hold on;
-plot (t_val, I, 'DisplayName', 'Voltage', 'color', 'b')
+plot (t_val, V, 'DisplayName', 'Voltage', 'color', 'b')
 hold on;
 plot (t_val, double(subs(theta,t,t_val)), '--', 'DisplayName', 'joint position', 'color', 'blue')
 hold on;
@@ -35,10 +36,10 @@ plot (t_val, Tm, 'DisplayName', 'Motor Torque', 'color', 'green')
 hold on;
 plot (t_val, actuator_val(:, 1), 'DisplayName', 'Tload', 'color', 'black')
 
-legend ('show')
 xlabel('Time (s)');
 ylabel ('Efficiency / Efficiency Error');
 legend ('show');
+title("I, V, Tload, Theta, Tm comparison")
 %ylim([-5, 5]);
 
 %Looking at difference between motor efficiency and actuator efficiency
