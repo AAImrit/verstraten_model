@@ -12,13 +12,13 @@ syms t;
 [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (sin(t), 0, 0, const);
 
 %get Tm, thetam_dot, efficiency values
-t_val = linspace(0, 4*pi, 100);
+t_val = linspace(0, 4*pi, 1000);
 
 [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false);
-test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen);
+test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen, true);
 
 actuator_val = evaluateSymbolic ({Tload, theta_dot}, t_val);
-test_actuator_efficiency = getEfficiency(actuator_val(:, 1), actuator_val(:,2), I, V, index_regen);
+test_actuator_efficiency = getEfficiency(actuator_val(:, 1), actuator_val(:,2), I, V, index_regen, true);
 
 % plotting efficiency vs time
 plotEfficiecny(test_motor_efficiency, t_val, double(subs(theta,t,t_val)), 'motor efficiency')
@@ -74,7 +74,7 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     hold on;
     plot (t_val, theta, '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
     hold on;
-    plot (t_val, movmean(efficiency, 10), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
+    plot (t_val, movmean(efficiency, 100), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
     
     title(name);
     xlabel('Time (s)');
@@ -83,7 +83,7 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     %ylim ([-5, 5]);
 end
 
-function eff = getEfficiency(torque, velocity, current, voltage, regen_index)
+function eff = getEfficiency(torque, velocity, current, voltage, regen_index, remove_inf)
     %{
         get efficiency and applies the quadrant logic
 
@@ -93,6 +93,7 @@ function eff = getEfficiency(torque, velocity, current, voltage, regen_index)
         current (double[]) -> current values over some rane
         voltage (double[]) -> voltage values over some rane
         regen_index (int[]) -> indices where regen occurs
+        remove_inf (bool) -> bool that indicates whether indices where eff is going to inf should be removed
 
         Return:
         eff (double[]) -> the efficiency over a given range
@@ -103,8 +104,41 @@ function eff = getEfficiency(torque, velocity, current, voltage, regen_index)
         disp("regen accounted for in efficiency calc")
         eff(regen_index) = (current(regen_index).*voltage(regen_index))./(torque(regen_index).*velocity(regen_index));
     end
+
+    if remove_inf == true
+        eff = removeEffDiscontinuity(eff, torque, velocity, current, voltage, regen_index);
+        disp ("efficiency discontinuity removed")
+    end
 end
 
+function eff = removeEffDiscontinuity (eff, torque, velocity, current, voltage, regen_index)
+    %{
+    %Method 1 
+    regen_inf_index = find (velocity == 0 | torque == 0); 
+    regen_inf_index = regen_inf_index(ismember(regen_inf_index, regen_index));
+    eff(regen_inf_index) = eff(regen_inf_index-1);
+
+    notregen_inf_index = find (current == 0 | voltage == 0);
+    notregen_inf_index = notregen_inf_index(~ismember(notregen_inf_index, regen_index));
+    eff(notregen_inf_index) = eff(notregen_inf_index-1);
+    %}
+
+    %Method 2: for all indices where eff > 2, let that eff = last eff where it was less than 2
+    %
+    inf_index = find(abs(eff)>2);
+    last_val = eff(inf_index(1)-1);
+    eff(inf_index(1)) = last_val;
+    
+    for i = 2:numel(inf_index)
+        if(inf_index(i) == (inf_index(i-1)+1))
+            eff(inf_index(i)) = last_val;
+        else
+            last_val = eff(inf_index(i)-1);
+            eff(inf_index(i)) = last_val;
+        end
+    end
+
+end
 
 
 
