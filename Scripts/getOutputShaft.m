@@ -10,13 +10,14 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
         benchtop (bool) -> whether the calculation is done for benchtop validation or just for an input function
 
         Return:
-        theta (double[]) -> the joing position
-        theta_dot (double[]) -> the joint velocity
-        theta_double_dot (double[]) -> the joint acceleration
-        Tload (double[]) -> get Tload as a symbolic function
+        theta (symbolic function) -> the joing position
+        theta_dot (symbolic fuction) -> the joint velocity
+        theta_double_dot (symbolic function) -> the joint acceleration
+        Tload (symbolic function) -> get Tload as a symbolic function
     %}
 
     if benchtopMode == true
+        disp ("benchtop mode for output shaft")
         theta = zeros(numel(theta_dot), 1);
         theta_double_dot = zeros(numel(theta_dot), 1);
         Tload = const('gear_inertia').*theta_double_dot + const('gear_damping').*theta_dot + Tload;
@@ -26,9 +27,11 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
     syms t;
     
     if (theta ~= 0 && ~isempty(theta))
+        disp ("theta is input")
         theta_dot = diff(theta, t);
         
     elseif (theta_dot ~= 0 && ~isempty(theta_dot))
+        disp ("theta_dot is input")
         theta = int(theta_dot, t); %note this won't work depending on how complex the equation is
 
     else 
@@ -40,13 +43,5 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
     if (Tload == 0)
         Tload = const('gear_inertia')*theta_double_dot + const('gear_damping')*theta_dot + const('mass')*const('gravity')*const('pendulum_length')*sin(theta);
     end
-    
-    %bad practice but I gave up
-    %evaluating the function for the range of t_val
-    result = evaluateSymbolic ({theta, theta_dot, theta_double_dot, Tload}, t_val);
-    theta = result(:, 1);
-    theta_dot = result(:, 2);
-    theta_double_dot = result(:, 3);
-    Tload = result(:, 4);
 
 end

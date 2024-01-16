@@ -38,6 +38,7 @@ function [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot,
     V = const('motor_resistance').*I + const('k_b').*thetam_dot;
 
     if ignore_motor_inductance == false
+        disp ("motor inductance accounted for")
         %approximating differential of I
         diff_I = zeros(numel(t_val), 1);
         diff_I(2:end) = (I(2:end) - I(1:end-1))./(t_val(2:end) - t_val(1:end-1))';
