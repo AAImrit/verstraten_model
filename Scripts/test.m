@@ -20,18 +20,19 @@ const = txtToDict(constPath);
 
 %define theta and the equations
 syms t;
-t_val = linspace(0, 4*pi, 100);
+t_val = linspace(0, 4*pi, 1000);
 [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (sin(t), 0, 0, const, t_val, benchtopMode);
-
 %changing from symbolic to numerical
-output_shaft_val = evaluateSymbolic ({theta, theta_dot, theta_double_dot, Tload}, t_val)
+output_shaft_val = evaluateSymbolic ({theta, theta_dot, theta_double_dot, Tload}, t_val);
 theta = output_shaft_val(:, 1);
 theta_dot = output_shaft_val(:, 2);
 theta_double_dot = output_shaft_val(:, 3);
 Tload = output_shaft_val(:, 4);
+
 %for benchtopMode == true, getOutput(0, [array of vectorValues, [array of T_driven values]])
 
 [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false, benchtopMode);
+
 test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen, true);
 test_actuator_efficiency = getEfficiency(Tload, theta_dot, I, V, index_regen, true);
 
@@ -90,7 +91,7 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     hold on;
     plot (t_val, theta, '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
     hold on;
-    plot (t_val, movmean(efficiency, 10), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
+    plot (t_val, movmean(efficiency, 100), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
     
     title(name);
     xlabel('Time (s)');

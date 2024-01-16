@@ -43,7 +43,7 @@ function [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot,
         diff_I = zeros(numel(t_val), 1);
         diff_I(2:end) = (I(2:end) - I(1:end-1))./(t_val(2:end) - t_val(1:end-1))';
         
-        V = V + const('motor_inductance')*diff_I;
+        V = V + const('motor_inductance').*diff_I;
     end
 end
 
