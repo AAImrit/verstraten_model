@@ -22,12 +22,6 @@ const = txtToDict(constPath);
 syms t;
 t_val = linspace(0, 4*pi, 1000);
 [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (sin(t), 0, 0, const, t_val, benchtopMode);
-%changing from symbolic to numerical
-output_shaft_val = evaluateSymbolic ({theta, theta_dot, theta_double_dot, Tload}, t_val);
-theta = output_shaft_val(:, 1);
-theta_dot = output_shaft_val(:, 2);
-theta_double_dot = output_shaft_val(:, 3);
-Tload = output_shaft_val(:, 4);
 
 %for benchtopMode == true, getOutput(0, [array of vectorValues, [array of T_driven values]])
 

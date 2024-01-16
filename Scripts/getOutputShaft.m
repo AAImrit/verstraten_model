@@ -10,10 +10,10 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
         benchtop (bool) -> whether the calculation is done for benchtop validation or just for an input function
 
         Return:
-        theta (symbolic function) -> the joing position
-        theta_dot (symbolic fuction) -> the joint velocity
-        theta_double_dot (symbolic function) -> the joint acceleration
-        Tload (symbolic function) -> get Tload as a symbolic function
+        theta (double[]) -> the joing position
+        theta_dot (double[]) -> the joint velocity
+        theta_double_dot (double[]) -> the joint acceleration
+        Tload (double[]) -> get Tload as a symbolic function
     %}
 
     if benchtopMode == true
@@ -43,5 +43,12 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
     if (Tload == 0)
         Tload = const('gear_inertia')*theta_double_dot + const('gear_damping')*theta_dot + const('mass')*const('gravity')*const('pendulum_length')*sin(theta);
     end
+    
+    %changing from symbolic to numerical
+    output_shaft_val = evaluateSymbolic ({theta, theta_dot, theta_double_dot, Tload}, t_val);
+    theta = output_shaft_val(:, 1);
+    theta_dot = output_shaft_val(:, 2);
+    theta_double_dot = output_shaft_val(:, 3);
+    Tload = output_shaft_val(:, 4);
 
 end
