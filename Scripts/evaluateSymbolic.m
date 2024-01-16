@@ -8,10 +8,9 @@ function result = evaluateSymbolic (equations, val)
         val (double[]) -> a vector containing values over which we want to evaluate our symbolic function
 
         Returns:
-        reulst (double[][]) -> 2D array, where each column is 1 euqations values over the range defined in val
+        reulst (list) -> 2D array, where each column is 1 euqations values over the range defined in val
     %}
     syms t;
-
     result = zeros(numel(val), numel(equations));
 
     for i = 1:numel(equations)

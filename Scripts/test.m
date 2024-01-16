@@ -1,6 +1,17 @@
+%{
+benchtopMode == true will need a different main file because of the t_val
+stuff, t_val does not apply for benchtop validation, it only applies for
+when a function is known
+
+This file is used to "test" the outputs of the simulation and see if the
+results make sense
+%}
+
 close all;
 clear all;
 clc;
+
+benchtopMode = false; 
 
 %obtain contant values
 currentPath = which(mfilename);
@@ -9,20 +20,18 @@ const = txtToDict(constPath);
 
 %define theta and the equations
 syms t;
-[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (sin(t), 0, 0, const);
+t_val = linspace(0, 4*pi, 100);
+[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (sin(t), 0, 0, const, t_val, benchtopMode);
+%for benchtopMode == true, getOutput(0, [array of vectorValues, [array of T_driven values]])
 
-%get Tm, thetam_dot, efficiency values
-t_val = linspace(0, 4*pi, 1000);
-
-[Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false);
+[Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false, benchtopMode);
 test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen, true);
+test_actuator_efficiency = getEfficiency(theta_dot, Tload, I, V, index_regen, true);
 
-actuator_val = evaluateSymbolic ({Tload, theta_dot}, t_val);
-test_actuator_efficiency = getEfficiency(actuator_val(:, 1), actuator_val(:,2), I, V, index_regen, true);
-
+%------------------------------------------PLOTTING---------------------------------------------------
 % plotting efficiency vs time
-plotEfficiecny(test_motor_efficiency, t_val, double(subs(theta,t,t_val)), 'motor efficiency')
-plotEfficiecny(test_actuator_efficiency, t_val, double(subs(theta,t,t_val)), 'actuator efficiency')
+plotEfficiecny(test_motor_efficiency, t_val, theta, 'motor efficiency')
+plotEfficiecny(test_actuator_efficiency, t_val, theta, 'actuator efficiency')
 
 %plotting I, V, theta, Tload, Tm to compare and see if something looks off
 figure('windowstyle','docked');
@@ -30,11 +39,11 @@ plot (t_val, I, 'DisplayName', 'Current', 'color', 'r', 'LineWidth', 1)
 hold on;
 plot (t_val, V, 'DisplayName', 'Voltage', 'color', 'b')
 hold on;
-plot (t_val, double(subs(theta,t,t_val)), '--', 'DisplayName', 'joint position', 'color', 'blue')
+plot (t_val, theta, '--', 'DisplayName', 'joint position', 'color', 'blue')
 hold on;
 plot (t_val, Tm, 'DisplayName', 'Motor Torque', 'color', 'green')
 hold on;
-plot (t_val, actuator_val(:, 1), 'DisplayName', 'Tload', 'color', 'black')
+plot (t_val, Tload, 'DisplayName', 'Tload', 'color', 'black')
 
 xlabel('Time (s)');
 ylabel ('Efficiency / Efficiency Error');
@@ -50,7 +59,7 @@ plot (t_val, test_actuator_efficiency, 'DisplayName', 'Actuator Efficiency', 'co
 hold on;
 plot (t_val, abs((test_actuator_efficiency-test_motor_efficiency)./test_motor_efficiency), 'DisplayName', 'Difference', 'color', 'black', 'LineWidth', 1)
 hold on;
-plot (t_val, double(subs(theta,t,t_val)), '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
+plot (t_val, theta, '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
 
 legend ('show')
 xlabel('Time (s)');
@@ -74,7 +83,7 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     hold on;
     plot (t_val, theta, '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
     hold on;
-    plot (t_val, movmean(efficiency, 100), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
+    plot (t_val, movmean(efficiency, 10), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
     
     title(name);
     xlabel('Time (s)');
@@ -137,6 +146,8 @@ function eff = removeEffDiscontinuity (eff, torque, velocity, current, voltage, 
             eff(inf_index(i)) = last_val;
         end
     end
+    
+    %could also do eff(inf_index) = 2;
 
 end
 
