@@ -20,8 +20,10 @@ const = txtToDict(constPath);
 
 %define theta and the equations
 syms t;
+%theta = 2*asin(sin(pi/8)*ellipj(t, sin(pi/8)));
+theta  = sin(t)
 t_val = linspace(0, 4*pi, 1000);
-[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (sin(t), 0, 0, const, t_val, benchtopMode);
+[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, 0, 0, const, t_val, benchtopMode);
 
 %for benchtopMode == true, getOutput(0, [array of vectorValues, [array of T_driven values]])
 
@@ -46,6 +48,8 @@ hold on;
 plot (t_val, Tm, 'DisplayName', 'Motor Torque', 'color', 'green')
 hold on;
 plot (t_val, Tload, 'DisplayName', 'Tload', 'color', 'black')
+hold on;
+plot (t_val, thetam_dot, 'DisplayName', 'Thetam_dot', 'color', 'cyan')
 
 xlabel('Time (s)');
 ylabel ('Efficiency / Efficiency Error');
