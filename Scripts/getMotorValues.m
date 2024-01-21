@@ -26,9 +26,11 @@ function [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot,
     Tm = getTm (Tload, theta_double_dot, const, 1/const('gear_efficiency'));
     index_regen = [];
     if ignore_regen == false
-        disp("regen accounted for in motor calc")
         index_regen = find( (theta_dot > 0 & Tload < 0) | (theta_dot < 0 & Tload > 0)); %get indices when in quadrant 2 or quadrant 4
-        Tm(index_regen) = getTm (Tload(index_regen), theta_double_dot(index_regen), const, const('gear_efficiency')); %overwrting regen_index with new Tm
+        if (size(index_regen) ~= 0) %accounting for times when there simply isn't regeneration
+            disp("regen accounted for in motor calc")
+            Tm(index_regen) = getTm (Tload(index_regen), theta_double_dot(index_regen), const, const('gear_efficiency')); %overwrting regen_index with new Tm
+        end
     end
     
     thetam_dot = const('gear_ratio').*theta_dot;

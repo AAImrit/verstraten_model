@@ -11,7 +11,7 @@ close all;
 clear all;
 clc;
 
-benchtopMode = false; 
+benchtopMode = false; %benchtop mode allows for dicrete value input for theta_dot
 
 %obtain contant values
 currentPath = which(mfilename);
@@ -21,9 +21,10 @@ const = txtToDict(constPath);
 %define theta and the equations
 syms t;
 %theta = 2*asin(sin(pi/8)*ellipj(t, sin(pi/8)));
-theta  = sin(t)
+theta  = sin(t);
+theta_dot = heaviside(t);
 t_val = linspace(0, 4*pi, 1000);
-[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, 0, 0, const, t_val, benchtopMode);
+[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (0, theta_dot, 0, const, t_val, benchtopMode);
 
 %for benchtopMode == true, getOutput(0, [array of vectorValues, [array of T_driven values]])
 
@@ -37,7 +38,7 @@ test_actuator_efficiency = getEfficiency(Tload, theta_dot, I, V, index_regen, tr
 plotEfficiecny(test_motor_efficiency, t_val, theta, 'motor efficiency')
 plotEfficiecny(test_actuator_efficiency, t_val, theta, 'actuator efficiency')
 
-%plotting I, V, theta, Tload, Tm to compare and see if something looks off
+%plotting I, V, theta,thetam_dot, theta_dot, Tload, Tm to compare and see if something looks off
 figure('windowstyle','docked');
 plot (t_val, I, 'DisplayName', 'Current', 'color', 'r', 'LineWidth', 1)
 hold on;
@@ -50,27 +51,13 @@ hold on;
 plot (t_val, Tload, 'DisplayName', 'Tload', 'color', 'black')
 hold on;
 plot (t_val, thetam_dot, 'DisplayName', 'Thetam_dot', 'color', 'cyan')
+hold on;
+plot (t_val, theta_dot, 'DisplayName', 'Theta_dot', 'color', 'magenta')
 
 xlabel('Time (s)');
 ylabel ('Efficiency / Efficiency Error');
 legend ('show');
 title("I, V, Tload, Theta, Tm comparison")
-%ylim([-5, 5]);
-
-%Looking at difference between motor efficiency and actuator efficiency
-figure('windowstyle','docked');
-plot (t_val, test_motor_efficiency, 'DisplayName', 'Motor Efficiency', 'color', [0.2 0.5 0.9 0.4], 'LineWidth', 2)
-hold on;
-plot (t_val, test_actuator_efficiency, 'DisplayName', 'Actuator Efficiency', 'color', 'red', 'LineWidth', 0.5)
-hold on;
-plot (t_val, abs((test_actuator_efficiency-test_motor_efficiency)./test_motor_efficiency), 'DisplayName', 'Difference', 'color', 'black', 'LineWidth', 1)
-hold on;
-plot (t_val, theta, '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
-
-legend ('show')
-xlabel('Time (s)');
-ylabel ('Efficiency / Efficiency Error');
-legend ('show');
 %ylim([-5, 5]);
 
 function plotEfficiecny (efficiency, t_val, theta, name)
@@ -95,7 +82,7 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     xlabel('Time (s)');
     ylabel ('Efficiency');
     legend ('show');
-    %ylim ([-5, 5]);
+    ylim ([-2, 2]);
 end
 
 function eff = getEfficiency(torque, velocity, current, voltage, regen_index, remove_inf)
@@ -141,6 +128,9 @@ function eff = removeEffDiscontinuity (eff)
     %Method 2: for all indices where eff > 2, let that eff = last eff where it was less than 2
     %
     inf_index = find(abs(eff)>2);
+    if (numel(inf_index) == 0)
+        return;
+    end
     last_val = eff(inf_index(1)-1);
     eff(inf_index(1)) = last_val;
     
