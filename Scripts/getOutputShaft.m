@@ -12,7 +12,7 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
         Return:
         theta (double[]) -> the joing position
         theta_dot (double[]) -> the joint velocity
-        theta_double_dot (double[]) -> the joint acceleration
+        theta_double_dot (double[]) -> the jo`int acceleration
         Tload (double[]) -> get Tload as a symbolic function
     %}
 
@@ -31,7 +31,7 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
         theta_dot = diff(theta, t);
         
     elseif (theta_dot ~= 0 && ~isempty(theta_dot))
-        disp ("theta_dot is input")
+        disp ("theta_dot is indut")
         theta = int(theta_dot, t); %note this won't work depending on how complex the equation is
 
     else 
