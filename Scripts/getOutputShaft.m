@@ -3,7 +3,7 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
         function that it Tloas, theta or theta_dot, then solves for theta, theta_dot and theta double dot
         
         Args:
-        theta (symbolic function || 0 || empty) -> the joint position
+        theta (symbolic function || 0 || empty || double[]) -> the joint position
         theta_dot (symbolic function || 0 || double[]) -> the joint velocity
         Tload (symbolic function || 0 || double[]) -> the load torque function, in benchtop mode it represents T-drive 
         t_val (double[]) -> range of values to evaluate our double[] over
@@ -20,12 +20,23 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
         disp ("benchtop mode for output shaft")
         theta = zeros(numel(theta_dot), 1);
         theta_double_dot = zeros(numel(theta_dot), 1);
-        Tload = const('gear_inertia').*theta_double_dot + const('gear_damping').*theta_dot + Tload;
+        Tload = getTload(theta_double_dot, theta_dot, const, Tload);
         return; %this will force it to skip everything else
     end
-
+    
     syms t;
     
+    %if theta is a numeric input instead of a symbolic function
+    if (numel(theta) > 1)
+        disp('theta is numeric input')
+        theta_dot = numericDiff(theta, t_val);
+        theta_double_dot = numericDiff(theta_dot, t_val);
+        Tdriven = const('mass')*const('gravity')*const('pendulum_length').*sin(theta);
+        Tload = getTload (theta_double_dot, theta_dot, const, Tdriven);
+        return;
+    end
+
+    %When theta, theta_dot or x is symbolic
     if (theta ~= 0 && ~isempty(theta))
         disp ("theta is input")
         theta_dot = diff(theta, t);
@@ -40,15 +51,20 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
     end
 
     theta_double_dot = diff(theta_dot, t);
-    if (Tload == 0)
-        Tload = const('gear_inertia')*theta_double_dot + const('gear_damping')*theta_dot + const('mass')*const('gravity')*const('pendulum_length')*sin(theta);
-    end
     
     %changing from symbolic to numerical
-    output_shaft_val = evaluateSymbolic ({theta, theta_dot, theta_double_dot, Tload}, t_val);
+    output_shaft_val = evaluateSymbolic ({theta, theta_dot, theta_double_dot}, t_val);
     theta = output_shaft_val(:, 1);
     theta_dot = output_shaft_val(:, 2);
     theta_double_dot = output_shaft_val(:, 3);
-    Tload = output_shaft_val(:, 4);
+    
+    if (Tload == 0)
+        Tdriven = const('mass')*const('gravity')*const('pendulum_length').*sin(theta);
+        Tload = getTload (theta_double_dot, theta_dot, const, Tdriven);
+    end
 
+end
+
+function Tload = getTload (theta_double_dot, theta_dot, const, Tdriven)
+    Tload = const('gear_inertia').*theta_double_dot + const('gear_damping').*theta_dot + Tdriven;
 end

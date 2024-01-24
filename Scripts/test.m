@@ -20,11 +20,15 @@ const = txtToDict(constPath);
 
 %define theta and the equations
 syms t;
+
+% input testing ----------------------------------
 %theta = 2*asin(sin(pi/8)*ellipj(t, sin(pi/8)));
 theta  = sin(t);
-theta_dot = heaviside(t);
+%theta_dot = heaviside(t);
 t_val = linspace(0, 4*pi, 1000);
-[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (0, theta_dot, 0, const, t_val, benchtopMode);
+%theta = sin(t_val);
+%------------------------
+[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta', 0, 0, const, t_val, benchtopMode);
 
 %for benchtopMode == true, getOutput(0, [array of vectorValues, [array of T_driven values]])
 
@@ -34,10 +38,6 @@ test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen, true);
 test_actuator_efficiency = getEfficiency(Tload, theta_dot, I, V, index_regen, true);
 
 %------------------------------------------PLOTTING---------------------------------------------------
-% plotting efficiency vs time
-plotEfficiecny(test_motor_efficiency, t_val, theta, 'motor efficiency')
-plotEfficiecny(test_actuator_efficiency, t_val, theta, 'actuator efficiency')
-
 %plotting I, V, theta,thetam_dot, theta_dot, Tload, Tm to compare and see if something looks off
 figure('windowstyle','docked');
 plot (t_val, I, 'DisplayName', 'Current', 'color', 'r', 'LineWidth', 1)
@@ -59,6 +59,10 @@ ylabel ('Efficiency / Efficiency Error');
 legend ('show');
 title("I, V, Tload, Theta, Tm comparison")
 %ylim([-5, 5]);
+
+% plotting efficiency vs time
+plotEfficiecny(test_motor_efficiency, t_val, theta, 'motor efficiency')
+plotEfficiecny(test_actuator_efficiency, t_val, theta, 'actuator efficiency')
 
 function plotEfficiecny (efficiency, t_val, theta, name)
     %{
@@ -128,10 +132,14 @@ function eff = removeEffDiscontinuity (eff)
     %Method 2: for all indices where eff > 2, let that eff = last eff where it was less than 2
     %
     inf_index = find(abs(eff)>2);
-    if (numel(inf_index) == 0)
+    if (numel(inf_index) < 1)
         return;
     end
-    last_val = eff(inf_index(1)-1);
+    
+    last_val = 2;
+    if (inf_index(1) ~= 1)
+        last_val = eff(inf_index(1)-1); % just to sace me issues
+    end
     eff(inf_index(1)) = last_val;
     
     for i = 2:numel(inf_index)
