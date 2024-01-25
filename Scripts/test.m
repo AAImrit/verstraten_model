@@ -14,8 +14,10 @@ clc;
 benchtopMode = false; %benchtop mode allows for dicrete value input for theta_dot
 
 %obtain contant values
-currentPath = which(mfilename);
-constPath = fileparts(fileparts(currentPath))+ "\constant.txt"; %for matlab online, change \constant to /constant
+currentPath = fileparts(fileparts(which(mfilename)));
+constPath = currentPath + "\constant.txt"; %for matlab online, change "\constant.txt" to "/constant.txt"
+dataPath = currentPath + "\Data\";
+
 const = txtToDict(constPath);
 
 %define theta and the equations
@@ -23,12 +25,25 @@ syms t;
 
 % input testing ----------------------------------
 %theta = 2*asin(sin(pi/8)*ellipj(t, sin(pi/8)));
-theta  = sin(t);
+%theta  = sin(t);
 %theta_dot = heaviside(t);
-t_val = linspace(0, 4*pi, 1000);
+%t_val = (linspace(0, 4*pi, 150))';
 %theta = sin(t_val);
+
+
+%{
+subjects = ['AB01', 'AB02', 'AB03', 'AB04', 'AB05', 'AB06', 'AB07', 'AB08', 'AB09', 'AB10'];
+trials = ["Run", "Walk", "Stairs"]
+walkSpeed = [a0x2, a0x5, d0x2, d0x5, s0x8, s1, s1x2]
+runSpeed = [a0x2, a0x5, d0x2, d0x5, s1x8, s2x0, s2x2, s2x4]
+walkIncline = [i0, i5, i10, in5, in10]
+runIncline = [i0]
+%}
+
+[theta, t_val] = getBioData (dataPath, 'AB03', 'Walk', 's1', 'i0');
 %------------------------
-[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta', 0, 0, const, t_val, benchtopMode);
+
+[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, 0, 0, const, t_val, benchtopMode);
 
 %for benchtopMode == true, getOutput(0, [array of vectorValues, [array of T_driven values]])
 
@@ -53,18 +68,20 @@ hold on;
 plot (t_val, thetam_dot, 'DisplayName', 'Thetam_dot', 'color', 'cyan')
 hold on;
 plot (t_val, theta_dot, 'DisplayName', 'Theta_dot', 'color', 'magenta')
+hold on;
+scatter(t_val(index_regen), zeros(numel(t_val(index_regen)), 1),10, 'MarkerFaceColor', 'yellow');
 
 xlabel('Time (s)');
 ylabel ('Efficiency / Efficiency Error');
 legend ('show');
 title("I, V, Tload, Theta, Tm comparison")
-%ylim([-5, 5]);
+ylim([-5, 5]);
 
 % plotting efficiency vs time
-plotEfficiecny(test_motor_efficiency, t_val, theta, 'motor efficiency')
-plotEfficiecny(test_actuator_efficiency, t_val, theta, 'actuator efficiency')
+plotEfficiecny(test_motor_efficiency, t_val, theta, 'motor efficiency', index_regen)
+plotEfficiecny(test_actuator_efficiency, t_val, theta, 'actuator efficiency', index_regen)
 
-function plotEfficiecny (efficiency, t_val, theta, name)
+function plotEfficiecny (efficiency, t_val, theta, name, index_regen)
     %{
         This is to make a simple efficiency plot of the efficency and the theta angle
 
@@ -76,16 +93,18 @@ function plotEfficiecny (efficiency, t_val, theta, name)
     %}
     figure('windowstyle','docked');
 
-    plot (t_val, efficiency, 'DisplayName', 'Efficiency', 'color', 'black', 'LineWidth', 1)
+    plot (t_val, efficiency*100, 'DisplayName', 'Efficiency', 'color', 'black', 'LineWidth', 1)
     hold on;
     plot (t_val, theta, '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
     hold on;
-    plot (t_val, movmean(efficiency, 100), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
+    plot (t_val, movmean(efficiency, 10)*100, 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
+    hold on;
+    scatter(t_val(index_regen), zeros(numel(t_val(index_regen)), 1),10,'MarkerFaceColor', 'yellow');
     
     title(name);
     xlabel('Time (s)');
     ylabel ('Efficiency');
     legend ('show');
-    ylim ([-2, 2]);
+    %ylim ([-2, 2]);
 end
 
