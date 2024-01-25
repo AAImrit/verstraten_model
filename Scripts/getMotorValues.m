@@ -1,4 +1,4 @@
-function [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, ignore_motor_inductance, ignore_regen, benchtopMode)
+function [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, ignore_motor_inductance, ignore_regen, benchtopMode, plotVal)
     %{
         get all motor values
 
@@ -45,6 +45,10 @@ function [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot,
         diff_I = numericDiff(I, t_val);
         V = V + const('motor_inductance').*diff_I;
     end
+    
+    if plotVal == true
+        plotMotorVal (I, V, thetam_dot, Tm, t_val)
+    end
 end
 
 function Tm = getTm (Tload, theta_double_dot, const, c)
@@ -63,3 +67,20 @@ function Tm = getTm (Tload, theta_double_dot, const, c)
 
     Tm = (const('motor_inertia') + const('gear_inertia')).*const('gear_ratio').*theta_double_dot + (c/const('gear_ratio')).*Tload;
 end 
+
+function plotMotorVal (I, V, thetam_dot, Tm, t_val)
+   figure('windowstyle','docked');
+    plot (t_val, I, 'DisplayName', 'Current', 'color', 'r', 'LineWidth', 1)
+    hold on;
+    plot (t_val, V, 'DisplayName', 'Voltage', 'color', 'b')
+    hold on;
+    plot (t_val, Tm, 'DisplayName', 'Motor Torque', 'color', 'green')
+    hold on;
+    plot (t_val, thetam_dot, 'DisplayName', 'Thetam_dot', 'color', 'cyan')
+    hold on;
+
+    xlabel('Time (s)');
+    ylabel ('Amps - Volts - Nm - rad/s');
+    legend ('show');
+    title("I, V, Tm, thetam_dot comparison")
+end

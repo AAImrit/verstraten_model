@@ -1,4 +1,4 @@
-function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, theta_dot, Tload, const, t_val, benchtopMode)
+function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, theta_dot, Tload, const, t_val, benchtopMode, plotVal)
     %{
         function that it Tloas, theta or theta_dot, then solves for theta, theta_dot and theta double dot
         
@@ -21,6 +21,9 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
         theta = zeros(numel(theta_dot), 1);
         theta_double_dot = zeros(numel(theta_dot), 1);
         Tload = getTload(theta_double_dot, theta_dot, const, Tload);
+        if plotVal == true
+            plotOutputShaft (theta, theta_dot, theta_double_dot, Tload, t_val)
+        end
         return; %this will force it to skip everything else
     end
     
@@ -33,6 +36,9 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
         theta_double_dot = numericDiff(theta_dot, t_val);
         Tdriven = const('mass')*const('gravity')*const('pendulum_length').*sin(theta);
         Tload = getTload (theta_double_dot, theta_dot, const, Tdriven);
+        if plotVal == true
+            plotOutputShaft (theta, theta_dot, theta_double_dot, Tload, t_val)
+        end
         return;
     end
 
@@ -62,9 +68,28 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
         Tdriven = const('mass')*const('gravity')*const('pendulum_length').*sin(theta);
         Tload = getTload (theta_double_dot, theta_dot, const, Tdriven);
     end
-
+    
+    if plotVal == true
+        plotOutputShaft (theta, theta_dot, theta_double_dot, Tload, t_val)
+    end
 end
 
 function Tload = getTload (theta_double_dot, theta_dot, const, Tdriven)
     Tload = const('gear_inertia').*theta_double_dot + const('gear_damping').*theta_dot + Tdriven;
+end
+
+function plotOutputShaft (theta, theta_dot, theta_double_dot, Tload, t_val)
+    figure('windowstyle','docked');
+    plot (t_val, theta, '--', 'DisplayName', 'joint position', 'color', 'blue')
+    hold on;
+    plot (t_val, Tload, 'DisplayName', 'Tload', 'color', 'black')
+    hold on;
+    plot (t_val, theta_dot, 'DisplayName', 'Theta_dot', 'color', 'magenta')
+    hold on;
+    plot (t_val, theta_double_dot, 'DisplayName', 'Theta_double_dot', 'color', 'green')
+    
+    xlabel('Time (s)');
+    ylabel ('Nm - rad - rad/s - rad/s^2');
+    legend ('show');
+    title("Output Shaft Values")
 end
