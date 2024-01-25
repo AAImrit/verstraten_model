@@ -27,8 +27,8 @@ syms t;
 %theta = 2*asin(sin(pi/8)*ellipj(t, sin(pi/8)));
 %theta  = sin(t);
 %theta_dot = heaviside(t);
-%t_val = (linspace(0, 4*pi, 150))';
-%theta = sin(t_val);
+%t_val = (linspace(0, 4*pi, 150));
+%theta = (sin(t_val))';
 
 
 %{
@@ -43,11 +43,11 @@ runIncline = [i0]
 [theta, t_val] = getBioData (dataPath, 'AB03', 'Walk', 's1', 'i0');
 %------------------------
 
-[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, 0, 0, const, t_val, benchtopMode);
+[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, 0, 0, const, t_val, benchtopMode, true);
 
 %for benchtopMode == true, getOutput(0, [array of vectorValues, [array of T_driven values]])
 
-[Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false, benchtopMode);
+[Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false, benchtopMode, true);
 
 test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen, true);
 test_actuator_efficiency = getEfficiency(Tload, theta_dot, I, V, index_regen, true);
@@ -59,23 +59,25 @@ plot (t_val, I, 'DisplayName', 'Current', 'color', 'r', 'LineWidth', 1)
 hold on;
 plot (t_val, V, 'DisplayName', 'Voltage', 'color', 'b')
 hold on;
-plot (t_val, theta, '--', 'DisplayName', 'joint position', 'color', 'blue')
-hold on;
 plot (t_val, Tm, 'DisplayName', 'Motor Torque', 'color', 'green')
-hold on;
-plot (t_val, Tload, 'DisplayName', 'Tload', 'color', 'black')
 hold on;
 plot (t_val, thetam_dot, 'DisplayName', 'Thetam_dot', 'color', 'cyan')
 hold on;
-plot (t_val, theta_dot, 'DisplayName', 'Theta_dot', 'color', 'magenta')
+plot (t_val, theta, '--', 'DisplayName', 'joint position', 'color', 'blue')
 hold on;
-scatter(t_val(index_regen), zeros(numel(t_val(index_regen)), 1),10, 'MarkerFaceColor', 'yellow');
+plot (t_val, Tload, 'DisplayName', 'Tload', 'color', 'black')
+hold on;
+plot (t_val, theta_dot, 'DisplayName', 'Theta dot', 'color', 'magenta')
+hold on;
+plot (t_val, theta_double_dot, 'DisplayName', 'Theta double dot', 'color', 'yellow')
+hold on;
+scatter(t_val(index_regen), zeros(numel(t_val(index_regen)), 1),10, 'DisplayName', 'regen area','MarkerFaceColor', 'yellow');
 
 xlabel('Time (s)');
 ylabel ('Efficiency / Efficiency Error');
 legend ('show');
 title("I, V, Tload, Theta, Tm comparison")
-ylim([-5, 5]);
+%ylim([-5, 5]);
 
 % plotting efficiency vs time
 plotEfficiecny(test_motor_efficiency, t_val, theta, 'motor efficiency', index_regen)
@@ -93,13 +95,13 @@ function plotEfficiecny (efficiency, t_val, theta, name, index_regen)
     %}
     figure('windowstyle','docked');
 
-    plot (t_val, efficiency*100, 'DisplayName', 'Efficiency', 'color', 'black', 'LineWidth', 1)
+    plot (t_val, efficiency, 'DisplayName', 'Efficiency', 'color', 'black', 'LineWidth', 1)
     hold on;
     plot (t_val, theta, '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
     hold on;
-    plot (t_val, movmean(efficiency, 10)*100, 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
+    plot (t_val, movmean(efficiency, 10), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
     hold on;
-    scatter(t_val(index_regen), zeros(numel(t_val(index_regen)), 1),10,'MarkerFaceColor', 'yellow');
+    scatter(t_val(index_regen), zeros(numel(t_val(index_regen)), 1),10, 'DisplayName', 'regen area','MarkerFaceColor', 'yellow');
     
     title(name);
     xlabel('Time (s)');
