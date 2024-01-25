@@ -44,6 +44,7 @@ function eff = removeEffDiscontinuity (eff)
     if (numel(inf_index) < 1)
         return;
     end
+    %eff(inf_index) = 2;
     
     last_val = 2;
     if (inf_index(1) ~= 1)

@@ -50,7 +50,7 @@ runIncline = [i0]
 [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false, benchtopMode, true);
 
 test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen, true);
-test_actuator_efficiency = getEfficiency(Tload, theta_dot, I, V, index_regen, true);
+test_actuator_efficiency = getEfficiency(Tload, theta_dot, I, V, index_regen, false);
 
 %------------------------------------------PLOTTING---------------------------------------------------
 %plotting I, V, theta,thetam_dot, theta_dot, Tload, Tm to compare and see if something looks off
@@ -101,7 +101,7 @@ function plotEfficiecny (efficiency, t_val, theta, name, index_regen)
     hold on;
     plot (t_val, movmean(efficiency, 10), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
     hold on;
-    scatter(t_val(index_regen), zeros(numel(t_val(index_regen)), 1),10, 'DisplayName', 'regen area','MarkerFaceColor', 'yellow');
+    %scatter(t_val(index_regen), zeros(numel(t_val(index_regen)), 1),10, 'DisplayName', 'regen area','MarkerFaceColor', 'yellow');
     
     title(name);
     xlabel('Time (s)');
