@@ -17,7 +17,7 @@ function derivative = numericDiff (y_val, x_val)
         return;
     end
 
-    derivative(1) = (y_val(1) - y_val(2))/( x_val(2) - x_val(1) ); %forward difference
+    derivative(1) = (y_val(1) - y_val(2))/( x_val(1) - x_val(2) ); %forward difference
     derivative(data_length) = (y_val(data_length) - y_val(data_length-1)) / (x_val(data_length) - x_val(data_length-1)); %backward difference
     derivative(2:data_length-1) =(y_val(1:data_length-2) - y_val(3:data_length))./(x_val(1:data_length-2) - x_val(3:data_length))'; %central difference
 end
