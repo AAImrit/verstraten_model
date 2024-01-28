@@ -4,7 +4,8 @@ function derivative = numericDiff (y_val, x_val)
         using a combo of forward, backward and central difference
         
         Args:
-        data (double[]) -> function in numerical form (discrete points given in sequential order)
+        y_val (double[]) -> y-values of function in numerical form (discrete points given in sequential order)
+        x_val (double[]) -> x-values of function in numerical form (discrete points given in sequential order)
 
         Return:
         derivative (double[]) -> the derivative 

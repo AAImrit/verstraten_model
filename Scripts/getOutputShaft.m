@@ -7,7 +7,8 @@ function [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, th
         theta_dot (symbolic function || 0 || double[]) -> the joint velocity
         Tload (symbolic function || 0 || double[]) -> the load torque function, in benchtop mode it represents T-drive 
         t_val (double[]) -> range of values to evaluate our double[] over
-        benchtop (bool) -> whether the calculation is done for benchtop validation or just for an input function
+        benchtopMode (bool) -> whether the calculation is done for benchtop validation or just for an input function
+        plotVal (bool) -> plot the output values of this function
 
         Return:
         theta (double[]) -> the joing position

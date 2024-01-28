@@ -26,8 +26,8 @@ syms t;
 % input testing ----------------------------------
 %theta = 2*asin(sin(pi/8)*ellipj(t, sin(pi/8)));
 %theta  = sin(t);
-theta_dot = 0.2*heaviside(t);
-t_val = (linspace(0, 4*pi, 150));
+%theta_dot = 0.2*heaviside(t);
+%t_val = (linspace(0, 4*pi, 150));
 %theta = (sin(t_val))';
 
 
@@ -40,10 +40,10 @@ walkIncline = [i0, i5, i10, in5, in10]
 runIncline = [i0]
 %}
 
-%[theta, t_val] = getBioData (dataPath, 'AB03', 'Walk', 's1', 'i0');
+[theta, t_val] = getBioData (dataPath, 'AB03', 'Walk', 's1', 'i0');
 %------------------------
 
-[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (0, theta_dot, 0, const, t_val, benchtopMode, true);
+[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, 0, 0, const, t_val, benchtopMode, true);
 
 %for benchtopMode == true, getOutput(0, [array of vectorValues, [array of T_driven values]])
 

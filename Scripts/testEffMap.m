@@ -4,7 +4,7 @@ V1: considers we know Tload and theta_dot
 Potential Improvement: we know T_driven (the mglsin(theta)) and theta_dot,
 then we solve for Tload, and try the rest
 %}
-close all;
+%close all;
 clear all;
 clc;
 
@@ -15,9 +15,16 @@ currentPath = fileparts(fileparts(which(mfilename)));
 constPath = currentPath + "\constant.txt"; %for matlab online, change "\constant.txt" to "/constant.txt"
 const = txtToDict(constPath);
 
-Tload = (linspace(-10, 10, 100))'; 
-theta_dot = (linspace(-11, 11, 50))';
+
+Tload = (linspace(-10, 10, 1000))'; 
+theta_dot = (linspace(-10, 10, 500))';
+
+%{
+Tload = (linspace(-3, 3, 1000))'; 
+theta_dot = (linspace(-0.5, 0.5, 500))';
+%}
 theta_dot_temp = 1+zeros(numel(Tload),1);
+
 
 eff = zeros(numel(Tload), numel(theta_dot));
 
@@ -30,14 +37,15 @@ end
 
 %Plotting the heatmap
 figure('windowstyle','docked');
-pcolor(theta_dot, Tload, eff);
+h = pcolor(theta_dot, Tload, eff);
+set(h, 'EdgeColor', 'none');
 colormap('jet');
 colorbar;
 caxis([-1, 1]);
 hold on;
-plot (theta_dot, zeros(numel(theta_dot),1), 'LineWidth', 2, 'color', 'black');
+plot (theta_dot, zeros(numel(theta_dot),1), 'LineWidth', 1, 'color', 'black'); %horzontal line to distinguish b/w quadrant
 hold on;
-plot (zeros(numel(Tload),1),Tload, 'LineWidth', 2, 'color', 'black');
+plot (zeros(numel(Tload),1),Tload, 'LineWidth', 1, 'color', 'black'); %vertical line to dinstinguish b/w quadrant
 
 title('Efficiency Map?');
 xlabel('theta dot');

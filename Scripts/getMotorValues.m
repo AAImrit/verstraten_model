@@ -10,6 +10,8 @@ function [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot,
         const (dict) -> constants of the equations
         t_val (double[]) -> range of values to evaluate our double[] over
         ignore_motor_inductance (bool) -> whether to ignore L or not
+        benchtopMode (bool) -> whether the calculation is done for benchtop validation or just for an input function
+        plotVal (bool) -> plot the output values of this function
 
         Returns:
         Tm (double[]) -> motor torque values over t_val
