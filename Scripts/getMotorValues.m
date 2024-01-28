@@ -21,6 +21,7 @@ function [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot,
 
     if benchtopMode == true
         ignore_motor_inductance = true;
+        theta_double_dot = zeros(numel(Tload), 1);
     end
     
     Tm = getTm (Tload, theta_double_dot, const, 1/const('gear_efficiency'));
