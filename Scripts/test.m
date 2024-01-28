@@ -26,8 +26,8 @@ syms t;
 % input testing ----------------------------------
 %theta = 2*asin(sin(pi/8)*ellipj(t, sin(pi/8)));
 %theta  = sin(t);
-%theta_dot = heaviside(t);
-%t_val = (linspace(0, 4*pi, 150));
+theta_dot = 0.2*heaviside(t);
+t_val = (linspace(0, 4*pi, 150));
 %theta = (sin(t_val))';
 
 
@@ -40,17 +40,17 @@ walkIncline = [i0, i5, i10, in5, in10]
 runIncline = [i0]
 %}
 
-[theta, t_val] = getBioData (dataPath, 'AB03', 'Walk', 's1', 'i0');
+%[theta, t_val] = getBioData (dataPath, 'AB03', 'Walk', 's1', 'i0');
 %------------------------
 
-[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, 0, 0, const, t_val, benchtopMode, true);
+[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (0, theta_dot, 0, const, t_val, benchtopMode, true);
 
 %for benchtopMode == true, getOutput(0, [array of vectorValues, [array of T_driven values]])
 
 [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false, benchtopMode, true);
 
 test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen, true);
-test_actuator_efficiency = getEfficiency(Tload, theta_dot, I, V, index_regen, false);
+test_actuator_efficiency = getEfficiency(Tload, theta_dot, I, V, index_regen, true);
 
 %------------------------------------------PLOTTING---------------------------------------------------
 %plotting I, V, theta,thetam_dot, theta_dot, Tload, Tm to compare and see if something looks off
@@ -80,10 +80,16 @@ title("I, V, Tload, Theta, Tm comparison")
 %ylim([-5, 5]);
 
 % plotting efficiency vs time
-plotEfficiecny(test_motor_efficiency, t_val, theta, 'motor efficiency', index_regen)
-plotEfficiecny(test_actuator_efficiency, t_val, theta, 'actuator efficiency', index_regen)
+plotEfficiecny(test_motor_efficiency, t_val, theta, 'motor efficiency', index_regen, true)
+plotEfficiecny(test_actuator_efficiency, t_val, theta, 'actuator efficiency', index_regen, true)
 
-function plotEfficiecny (efficiency, t_val, theta, name, index_regen)
+%extra plotting
+plotEfficiecny(test_actuator_efficiency, t_val, theta, 'actuator efficiency', index_regen, false)
+test_actuator_efficiency = getEfficiency(Tload, theta_dot, I, V, index_regen, false);
+plotEfficiecny(test_actuator_efficiency, t_val, theta, 'actuator efficiency', index_regen, true)
+
+
+function plotEfficiecny (efficiency, t_val, theta, name, index_regen, plot_theta)
     %{
         This is to make a simple efficiency plot of the efficency and the theta angle
 
@@ -97,11 +103,13 @@ function plotEfficiecny (efficiency, t_val, theta, name, index_regen)
 
     plot (t_val, efficiency, 'DisplayName', 'Efficiency', 'color', 'black', 'LineWidth', 1)
     hold on;
-    plot (t_val, theta, '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
-    hold on;
+    if plot_theta == true
+        plot (t_val, theta, '--', 'DisplayName', 'Theta(t)', 'color', 'blue')
+        hold on;
+    end
     plot (t_val, movmean(efficiency, 10), 'DisplayName', 'moving average', 'color', 'r', 'LineWidth', 1.5)
     hold on;
-    %scatter(t_val(index_regen), zeros(numel(t_val(index_regen)), 1),10, 'DisplayName', 'regen area','MarkerFaceColor', 'yellow');
+    scatter(t_val(index_regen), zeros(numel(t_val(index_regen)), 1),10, 'DisplayName', 'regen area','MarkerFaceColor', 'yellow');
     
     title(name);
     xlabel('Time (s)');
