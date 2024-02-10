@@ -1,9 +1,5 @@
 %{
-benchtopMode == true will need a different main file because of the t_val
-stuff, t_val does not apply for benchtop validation, it only applies for
-when a function is known
-
-This file is used to "test" the outputs of the simulation and see if the
+This file is used to "test" with biomechemanics data the outputs of the simulation and see if the
 results make sense
 %}
 
@@ -21,19 +17,19 @@ dataPath = currentPath + "\Data\";
 const = txtToDict(constPath);
 
 %define theta and the equations
-syms t;
+%{
+subjects = ['AB01', 'AB02', 'AB03', 'AB04', 'AB05', 'AB06', 'AB07', 'AB08', 'AB09', 'AB10'];
+trials = ["Run", "Walk", "Stairs"]
+walkSpeed = [a0x2, a0x5, d0x2, d0x5, s0x8, s1, s1x2]
+runSpeed = [a0x2, a0x5, d0x2, d0x5, s1x8, s2x0, s2x2, s2x4]
+walkIncline = [i0, i5, i10, in5, in10]
+runIncline = [i0]
+%}
 
-% input testing ----------------------------------
-%theta = 2*asin(sin(pi/8)*ellipj(t, sin(pi/8)));
-%theta  = sin(t);
-%theta_dot = heaviside(t);
-%t_val = (linspace(0, 4*pi, 150));
-%theta = (sin(t_val))';
+[theta, t_val] = getBioData (dataPath, 'AB03', 'Walk', 's1', 'i0');
 %------------------------
 
 [theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, 0, 0, const, t_val, benchtopMode, true);
-
-%for benchtopMode == true, getOutput(0, [array of vectorValues, [array of T_driven values]])
 
 [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false, benchtopMode, true);
 

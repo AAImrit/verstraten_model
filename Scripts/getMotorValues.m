@@ -85,5 +85,5 @@ function plotMotorVal (I, V, thetam_dot, Tm, t_val)
     xlabel('Time (s)');
     ylabel ('Amps - Volts - Nm - rad/s');
     legend ('show');
-    title("I, V, Tm, thetam_dot comparison")
+    title("Motor Values")
 end

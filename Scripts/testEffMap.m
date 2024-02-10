@@ -16,13 +16,12 @@ constPath = currentPath + "\constant.txt"; %for matlab online, change "\constant
 const = txtToDict(constPath);
 
 
-Tload = (linspace(-10, 10, 1000))'; 
-theta_dot = (linspace(-10, 10, 500))';
+%Tload = (linspace(-10, 10, 1000))'; 
+%theta_dot = (linspace(-10, 10, 500))';
 
-%{
-Tload = (linspace(-3, 3, 1000))'; 
-theta_dot = (linspace(-0.5, 0.5, 500))';
-%}
+Tload = (linspace(-2.5, 2.5, 1000))'; 
+theta_dot = (linspace(-0.2, 0.2, 500))';
+
 theta_dot_temp = 1+zeros(numel(Tload),1);
 
 
@@ -47,7 +46,7 @@ plot (theta_dot, zeros(numel(theta_dot),1), 'LineWidth', 1, 'color', 'black'); %
 hold on;
 plot (zeros(numel(Tload),1),Tload, 'LineWidth', 1, 'color', 'black'); %vertical line to dinstinguish b/w quadrant
 
-title('Efficiency Map?');
-xlabel('theta dot');
-ylabel('Tload');
+title('Efficiency Map');
+xlabel('theta dot (rad/s)');
+ylabel('Tload (Nm)');
 grid off;
