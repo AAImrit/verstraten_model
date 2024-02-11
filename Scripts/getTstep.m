@@ -1,4 +1,4 @@
-function [tstep_noRegen, tstep_regen] = tstepCalc (I_noRegen, V_noRegen, I_regen, V_regen, index_regen, battey_cap, eff_regen)
+function [tstep_noRegen, tstep_regen] = getTstep (I_noRegen, V_noRegen, I_regen, V_regen, index_regen, battey_cap, eff_regen)
     %{
 
     Args:
