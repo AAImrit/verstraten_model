@@ -4,8 +4,8 @@ results make sense
 %}
 
 close all;
-clear all;
-%clearvars -except Normalized;
+%clear all;
+clearvars -except Normalized;
 clc;
 
 benchtopMode = false; %benchtop mode allows for dicrete value input for theta_dot
@@ -36,7 +36,13 @@ runIncline = [i0]
 %[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, 0, 0, const, t_val, benchtopMode, true);
 
 %this one I'm taking values directly from the data
-[theta, t_val, theta_dot, theta_double_dot, Tload] = getBioData (dataPath, 'AB03', 'Walk', 's1', 'i0', const('mass'));
+if ~exist('Normalized', 'var')
+    disp('loading normalized data');
+    load(dataPath + "Normalized.mat");
+    disp('loaded normalized data');
+end
+
+[theta, t_val, theta_dot, theta_double_dot, Tload] = getBioData (Normalized, 'AB03', 'Walk', 's1', 'i0', const('mass'));
 plotOutputShaft (theta, theta_dot, theta_double_dot, Tload, t_val)
 [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false, benchtopMode, true);
 
