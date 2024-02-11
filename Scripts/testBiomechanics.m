@@ -45,9 +45,13 @@ end
 [theta, t_val, theta_dot, theta_double_dot, Tload] = getBioData (Normalized, 'AB03', 'Walk', 's1', 'i0', const('mass'));
 plotOutputShaft (theta, theta_dot, theta_double_dot, Tload, t_val)
 [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false, benchtopMode, true);
+[Tm2, thetam_dot2, I2, V2, index_regen2] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, true, benchtopMode, false);
 
 test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen, true);
 test_actuator_efficiency = getEfficiency(Tload, theta_dot, I, V, index_regen, true);
+
+battery_cap = 967690;
+[tstep_noRegen, tstep_regen] = tstepCalc (I2, V2, I, V, index_regen, battey_cap, eff)
 
 %------------------------------------------PLOTTING---------------------------------------------------
 %plotting I, V, theta,thetam_dot, theta_dot, Tload, Tm to compare and see if something looks off
