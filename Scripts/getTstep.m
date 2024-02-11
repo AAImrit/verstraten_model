@@ -15,11 +15,13 @@ function [tstep_noRegen, tstep_regen] = getTstep (I_noRegen, V_noRegen, I_regen,
     
     %}
 
-    tstep_noRegen = ( battey_cap / sum(I_noRegen.*V_noRegen) ) / 2;
+    tstep_noRegen = abs(( battey_cap / sum(abs(I_noRegen.*V_noRegen)) ) / 2);
 
-    eff_negative_regen = find (eff_regen(index_regen) > 0);
-    power_regen = sum(I_regen(eff_negative_regen).*V_regen(eff_negative_regen));
-    power_consumed = sum(I_regen(~eff_negative_regen).*V_regen(~eff_negative_regen));
-    tstep_regen = ( battey_cap / (power_consumed - power_regen) ) / 2;
+    eff_positive_regen = find (eff_regen(index_regen) > 0);
+    power_regen = sum(abs(I_regen(eff_positive_regen).*V_regen(eff_positive_regen)));
+    
+    consume_index = setdiff(1:numel(eff_regen), eff_positive_regen);
+    power_consumed = sum(abs(I_regen(consume_index).*V_regen(consume_index)));
+    tstep_regen = abs(( battey_cap / (power_consumed - power_regen) ) / 2);
 
 end

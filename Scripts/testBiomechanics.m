@@ -51,7 +51,7 @@ test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen, true);
 test_actuator_efficiency = getEfficiency(Tload, theta_dot, I, V, index_regen, true);
 
 battery_cap = 967690;
-[tstep_noRegen, tstep_regen] = getTstep (I2, V2, I, V, index_regen, battey_cap, eff)
+[tstep_noRegen, tstep_regen] = getTstep (I2, V2, I, V, index_regen, battery_cap, test_actuator_efficiency)
 
 %------------------------------------------PLOTTING---------------------------------------------------
 %plotting I, V, theta,thetam_dot, theta_dot, Tload, Tm to compare and see if something looks off
