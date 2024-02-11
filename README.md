@@ -13,12 +13,13 @@ Biomechanics data is not in repo. Dowload the data from https://springernature.f
 - **getMotorValues.m**: get values related to the motor (Tm, I, V, thetam_dot)
 - **getEfficiency.m**: calculated efficiency of the motor
 
-***Supplementaty Modules:***
+***Supporting Modules:***
 - **getBioData.m**: a module to extract the biomechanics data we want
 - **evaluateSymbolic.m**: evaluates a set of symbolic function over desired range
 - **numericDiff.m**: does numeric differentition
 - **txtToDict.m**: used to turn the constant file into a dictionary
 
 ***Plotting File:***
-- **test.m**: use to make time domain plots of efficiency and all other variables for specific actuator motion (inputs are time based functions)
+- **test.m**: use to make time domain plots of efficiency and all other variables for specific actuator motion (inputs are time based functions) (uses made up function like step input or sine functions)
 - **testEffMap.m**: use to make a torque-velocity efficiency heatmap trying to replicate a benchtop testing of an actuator
+- **testBiomechanics.m** : use to make biomechanics time domain plot of efficiecny and all other variable using only biomechancis data
