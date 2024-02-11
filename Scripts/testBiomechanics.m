@@ -5,6 +5,7 @@ results make sense
 
 close all;
 clear all;
+%clearvars -except Normalized;
 clc;
 
 benchtopMode = false; %benchtop mode allows for dicrete value input for theta_dot
@@ -26,11 +27,17 @@ walkIncline = [i0, i5, i10, in5, in10]
 runIncline = [i0]
 %}
 
-[theta, t_val] = getBioData (dataPath, 'AB03', 'Walk', 's1', 'i0');
+
+
 %------------------------
 
-[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, 0, 0, const, t_val, benchtopMode, true);
+% this one is when we are estimating everything else
+%[theta, t_val, theta_dot, theta_double_dot, Tload] = getBioData (dataPath, 'AB03', 'Walk', 's1', 'i0', 0);
+%[theta, theta_dot, theta_double_dot, Tload] = getOutputShaft (theta, 0, 0, const, t_val, benchtopMode, true);
 
+%this one I'm taking values directly from the data
+[theta, t_val, theta_dot, theta_double_dot, Tload] = getBioData (dataPath, 'AB03', 'Walk', 's1', 'i0', const('mass'));
+plotOutputShaft (theta, theta_dot, theta_double_dot, Tload, t_val)
 [Tm, thetam_dot, I, V, index_regen] = getMotorValues (theta, theta_dot, theta_double_dot, Tload, const, t_val, false, false, benchtopMode, true);
 
 test_motor_efficiency = getEfficiency(Tm, thetam_dot, I, V, index_regen, true);
@@ -100,5 +107,21 @@ function plotEfficiecny (efficiency, t_val, theta, name, index_regen, plot_theta
     ylabel ('Efficiency');
     legend ('show');
     %ylim ([-2, 2]);
+end
+
+function plotOutputShaft (theta, theta_dot, theta_double_dot, Tload, t_val)
+    figure('windowstyle','docked');
+    plot (t_val, theta, '--', 'DisplayName', 'joint position', 'color', 'blue')
+    hold on;
+    plot (t_val, Tload, 'DisplayName', 'Tload', 'color', 'black')
+    hold on;
+    plot (t_val, theta_dot, 'DisplayName', 'Theta_dot', 'color', 'magenta')
+    hold on;
+    plot (t_val, theta_double_dot, 'DisplayName', 'Theta_double_dot', 'color', 'green')
+    
+    xlabel('Time (s)');
+    ylabel ('Nm - rad - rad/s - rad/s^2');
+    legend ('show');
+    title("Output Shaft Values")
 end
 

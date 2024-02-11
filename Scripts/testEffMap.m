@@ -4,7 +4,7 @@ V1: considers we know Tload and theta_dot
 Potential Improvement: we know T_driven (the mglsin(theta)) and theta_dot,
 then we solve for Tload, and try the rest
 %}
-%close all;
+close all;
 clear all;
 clc;
 
